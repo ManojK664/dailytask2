@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [studentName, setStudentName] = useState('');
   const [marks, setMarks] = useState({
     chemistry: '',
     maths: '',
@@ -13,42 +14,69 @@ function App() {
   });
   const [error, setError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [submittedMarks, setSubmittedMarks] = useState([]); // State to store submitted marks
+  const [submittedMarks, setSubmittedMarks] = useState([]);
 
-  // Handle login form submission
+  // Load data from localStorage on component mount (if any)
+  useEffect(() => {
+    const storedMarks = JSON.parse(localStorage.getItem('submittedMarks'));
+    const storedUsername = localStorage.getItem('username');
+    const storedPassword = localStorage.getItem('password');
+    const storedStudentName = localStorage.getItem('studentName');
+
+    if (storedMarks) setSubmittedMarks(storedMarks);
+    if (storedUsername) setUsername(storedUsername);
+    if (storedPassword) setPassword(storedPassword);
+    if (storedStudentName) setStudentName(storedStudentName);
+
+    setMarks({
+      chemistry: '',
+      maths: '',
+      physics: '',
+      computing: '',
+      electronics: ''
+    });
+  }, []);
+
+  // Save submittedMarks to localStorage whenever it changes
+  useEffect(() => {
+    if (isLoggedIn) {
+      localStorage.setItem('submittedMarks', JSON.stringify(submittedMarks));
+    }
+  }, [submittedMarks, isLoggedIn]);
+
+  // Save username and password to localStorage on login
   const handleLoginSubmit = (e) => {
-    e.preventDefault(); // Prevent form submission with default validation
-
-    // Check if username and password are provided
+    e.preventDefault();
     if (username.trim() === '' || password.trim() === '') {
       setError('Both username and password are required.');
     } else {
+      localStorage.setItem('username', username);
+      localStorage.setItem('password', password);
       setError('');
       setIsLoggedIn(true);
     }
   };
 
-  // Handle marks input changes
   const handleMarksChange = (e) => {
     const { name, value } = e.target;
     setMarks({ ...marks, [name]: value });
   };
 
-  // Handle marks submission
   const handleAddMarks = (e) => {
-    e.preventDefault(); // Prevent the page refresh on button click
+    e.preventDefault();
+    if (studentName.trim() === '') {
+      setError('Student name is required.');
+      return;
+    }
 
-    // Create an array of marks with subjects and values
-    const marksArray = Object.entries(marks)
-      .map(([subject, mark]) => {
-        // If mark is empty, consider it as zero
-        return `${subject.charAt(0).toUpperCase() + subject.slice(1)}: ${mark.trim() === '' ? 0 : mark}`;
-      });
+    const marksArray = Object.entries(marks).map(([subject, mark]) => {
+      return `${subject.charAt(0).toUpperCase() + subject.slice(1)}: ${mark.trim() === '' ? 0 : mark}`;
+    });
 
-    // Update the state with new submitted marks (append new marks to the list)
-    setSubmittedMarks((prevMarks) => [...prevMarks, ...marksArray]);
+    const newMarks = { studentName, marks: marksArray };
+    const updatedMarks = [...submittedMarks, newMarks];
+    setSubmittedMarks(updatedMarks);
 
-    // Reset the marks input fields for further entries (empty the fields after submission)
     setMarks({
       chemistry: '',
       maths: '',
@@ -58,9 +86,33 @@ function App() {
     });
   };
 
+  // Logout functionality
+  const handleLogout = () => {
+    // Clear all stored data from localStorage
+    localStorage.removeItem('username');
+    localStorage.removeItem('password');
+    localStorage.removeItem('submittedMarks');
+    localStorage.removeItem('studentName'); // Removing studentName as well
+    
+    // Reset all React states to clear session data
+    setIsLoggedIn(false); // Logout user
+    setUsername(''); // Reset username
+    setPassword(''); // Reset password
+    setStudentName(''); // Reset student name
+    setMarks({
+      chemistry: '',
+      maths: '',
+      physics: '',
+      computing: '',
+      electronics: ''
+    }); // Reset all marks
+    setSubmittedMarks([]); // Clear submitted marks array
+    
+    // After logout, the page will load as fresh, showing the login page again.
+  };
+
   return (
     <div className="app">
-      {/* Render login page only if not logged in */}
       {!isLoggedIn ? (
         <div className="login-container">
           <h1>Login</h1>
@@ -71,7 +123,6 @@ function App() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                // Removed the "required" attribute
               />
             </div>
             <div className="input-container">
@@ -80,17 +131,24 @@ function App() {
                 type="text"  // Changed from "password" to "text"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                // Removed the "required" attribute
               />
             </div>
             <button type="submit">Login</button>
           </form>
-          {error && <p className="error">{error}</p>} {/* Show custom error */}
+          {error && <p className="error">{error}</p>}
         </div>
       ) : (
         <div className="subjects-container">
           <h2>Enter Marks for Subjects</h2>
           <form className="marks-form">
+            <div className="input-container">
+              <label>Student Name:</label>
+              <input
+                type="text"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+              />
+            </div>
             <div className="subject">
               <label>Chemistry:</label>
               <input
@@ -141,17 +199,27 @@ function App() {
             </button>
           </form>
 
-          {/* Display Submitted Marks with Username */}
-          <h3>Marks for {username}:</h3>
+          {/* Display Submitted Marks */}
+          <h3>Marks for {studentName || username}:</h3>
           {submittedMarks.length > 0 ? (
             <ul>
-              {submittedMarks.map((mark, index) => (
-                <li key={index}>{mark}</li>
+              {submittedMarks.map((entry, index) => (
+                <li key={index}>
+                  <strong>{entry.studentName}:</strong>
+                  <ul>
+                    {entry.marks.map((mark, idx) => (
+                      <li key={idx}>{mark}</li>
+                    ))}
+                  </ul>
+                </li>
               ))}
             </ul>
           ) : (
             <p>No marks</p>
           )}
+
+          {/* Logout button */}
+          <button onClick={handleLogout}>Logout</button>
         </div>
       )}
     </div>

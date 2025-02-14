@@ -1,42 +1,117 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* Overall app container */
+.app {
+  font-family: Arial, sans-serif;
   text-align: center;
+  padding: 20px;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Ensure the container fills the full screen height */
+  
+  margin-left: 555px;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Login container */
+.login-container {
+  width: 300px;
+  padding: 20px;
+  border: 1px solid black;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin: 0 auto;  /* Centers the container horizontally */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Input container */
+.input-container {
+  margin-bottom: 10px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.input-container input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid black;
+  border-radius: 4px;
 }
 
-.card {
-  padding: 2em;
+/* Error message */
+.error {
+  color: red;
+  font-size: 14px;
 }
 
-.read-the-docs {
-  color: #888;
+/* Subject container */
+.subjects-container {
+  width: 500px;
+  padding: 20px;
+  background-color:gray;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 0 auto; /* Centers the container horizontally */
+}
+
+/* Box for entering marks */
+.marks-box {
+  border: 2px wheat;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #d87979;
+  margin-bottom: 20px;
+}
+
+.marks-form .input-container {
+  margin-bottom: 10px;
+}
+
+.marks-form input {
+  width: 100%;
+  padding: 8px;
+  border: 1px black;
+  border-radius: 4px;
+}
+
+.marks-form button {
+  padding: 10px 15px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%; /* Ensure the button takes up the full width */
+}
+
+.marks-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Submitted Marks list */
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+li {
+  margin: 10px 0;
+}
+
+strong {
+  font-size: 18px;
+}
+
+/* Logout button */
+button {
+  padding: 10px 20px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%; /* Ensure the logout button takes up the full width */
+}
+
+button:hover {
+  background-color: darkred;
 }
